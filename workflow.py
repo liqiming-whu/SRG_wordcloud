@@ -215,7 +215,7 @@ def run_fetch(filename):
 
 if __name__ == "__main__":
     items = list(Fetch.parse_search_items())
-    filenames = [name[1] for name in items[:4]]
+    filenames = [name[1] for name in items]
 
     args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
     threads_lst = []
