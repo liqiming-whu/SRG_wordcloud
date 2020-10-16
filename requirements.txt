@@ -3,7 +3,6 @@ biopython==1.78
 pymed==0.8.9
 nltk==3.5
 wordcloud==1.8.0
-matplotlib==3.3.2
 nltk==3.5
 selenium==3.141.0
 wordcloud==1.8.0

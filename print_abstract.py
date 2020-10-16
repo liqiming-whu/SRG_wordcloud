@@ -2,7 +2,6 @@
 import os
 from Bio import Entrez, Medline
 from wordcloud import WordCloud
-import matplotlib.pyplot as plt
 from nltk.tokenize import word_tokenize
 from nltk.probability import FreqDist
 from generate_stopwords import clean_str
@@ -70,9 +69,6 @@ def wordcloud(text):
     """
     wordcloud = WordCloud(background_color="white", stopwords=stopwords, scale=4,
                           collocations=False, width=1000, height=750, margin=2).generate(text)
-    plt.imshow(wordcloud)
-    plt.axis("off")
-    plt.show()
     wordcloud.to_file("Zebrafish_abstract.pdf")
 
 
