@@ -211,11 +211,17 @@ class Fetch:
                 text += open(text_path).read()
             except Exception:
                 continue
+        words = word_tokenize(clean_str(text))
+        word_freq = FreqDist(words)
+        filtered_word_freq = Fetch.dict_filter(word_freq, Fetch.stopwords())
         wordcloud_path = os.path.join("results", "all.pdf")
+        word_path = os.path.join("results", "words.txt")
+        with open(word_path, "w") as f:
+            f.write("\n".join(filtered_word_freq.keys()))
         wordcloud = WordCloud(background_color="white",
                               stopwords=Fetch.stopwords(), scale=2,
                               collocations=False, width=1000,
-                              height=750, margin=2).generate(text)
+                              height=750, margin=2).generate_from_frequencies(filtered_word_freq)
         wordcloud.to_file(wordcloud_path)
 
 
