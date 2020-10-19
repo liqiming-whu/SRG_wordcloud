@@ -7,6 +7,7 @@ from functools import wraps
 from pubmed import Search_Pubmed
 from generate_stopwords import clean_str
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords as StopWords
 from nltk.probability import FreqDist
 from wordcloud import WordCloud
 from multiprocessing import Pool as ThreadPool
@@ -51,7 +52,7 @@ class Fetch:
     def stopwords():
         stopwords = set(line.rstrip() for line in open("stopwords.txt"))
         add = set(line.rstrip() for line in open("supplementary_stopwords.txt"))
-        stopwords = stopwords | add
+        stopwords = stopwords | add | set(StopWords.words('english'))
 
         return stopwords
 
