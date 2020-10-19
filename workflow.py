@@ -144,7 +144,7 @@ class Fetch:
         info = open(self.path(type="info"))
         reader = csv.reader(info)
         count = 0
-        full_text_path = self.path(type="full_text")
+        full_text_path = self.path(type="fulltext")
         from full_text import Article
         with open(full_text_path, "w", encoding="utf-8") as f:
             text = ""
@@ -166,6 +166,7 @@ class Fetch:
         Article.browser.quit()
         self.logfile.log("{} articles have been saved.\n".format(count))
 
+    @staticmethod
     def dict_filter(word_freq, stopwords):
         return dict((word, word_freq[word]) for word in word_freq if word not in stopwords)
 
@@ -175,7 +176,7 @@ class Fetch:
         text = open(text_path, encoding="utf-8").read()
         words = word_tokenize(clean_str(text))
         word_freq = FreqDist(words)
-        filtered_word_freq = self.dict_filter(word_freq, self.stopwords)
+        filtered_word_freq = Fetch.dict_filter(word_freq, self.stopwords)
         word_freq_path = self.path(type="freq")
         with open(word_freq_path, "w", encoding="utf-8") as f:
             json.dump(filtered_word_freq, f)
