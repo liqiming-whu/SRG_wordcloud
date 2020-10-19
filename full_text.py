@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException, InvalidSessionIdException
+from selenium.common.exceptions import TimeoutException, InvalidSessionIdException, WebDriverException
 
 
 class Article:
@@ -25,6 +25,12 @@ class Article:
         except InvalidSessionIdException:
             self.logfile.log("Article {} doi: {} invalid session id.\n".format(self.id, self.doi))
             return "Error"
+        except WebDriverException:
+            self.logfile.log("Article {} doi: {} conection closed.\n".format(self.id, self.doi))
+            return "Error"
+        finally:
+            return "Error"
+
         title = self.browser.title
 
         return title
