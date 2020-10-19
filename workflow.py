@@ -2,6 +2,7 @@
 import os
 import csv
 import time
+import json
 from functools import wraps
 from pubmed import Search_Pubmed
 from generate_stopwords import clean_str
@@ -109,7 +110,7 @@ class Fetch:
         if type == "fulltext":
             return os.path.join("results", self.filename, "{}_full.txt".format(self.filename))
         if type == "freq":
-            return os.path.join("results", self.filename, "{}_words_freq.txt".format(self.filename))
+            return os.path.join("results", self.filename, "{}_words_freq.json".format(self.filename))
         if type == "pdf":
             return os.path.join("results", self.filename, "{}.pdf".format(self.filename))
 
@@ -122,7 +123,7 @@ class Fetch:
         if type == "fulltext":
             return os.path.join("results", filename, "{}_full.txt".format(filename))
         if type == "freq":
-            return os.path.join("results", filename, "{}_words_freq.txt".format(filename))
+            return os.path.join("results", filename, "{}_words_freq.json".format(filename))
         if type == "pdf":
             return os.path.join("results", filename, "{}.pdf".format(filename))
         if type == "all":
@@ -143,7 +144,7 @@ class Fetch:
         info = open(self.path(type="info"))
         reader = csv.reader(info)
         count = 0
-        full_text_path = os.path.join(self.path(), "{}_full.txt".format(self.filename))
+        full_text_path = self.path(type="full_text")
         from full_text import Article
         with open(full_text_path, "w", encoding="utf-8") as f:
             text = ""
@@ -162,30 +163,31 @@ class Fetch:
                     count += 1
                     text += page_text
             f.write(text)
-        Article.browser.close()
+        Article.browser.quit()
         self.logfile.log("{} articles have been saved.\n".format(count))
+
+    def dict_filter(word_freq, stopwords):
+        return dict((word, word_freq[word]) for word in word_freq if word not in stopwords)
 
     @exec(type="freq")
     def save_word_freq(self):
         text_path = self.path(type='fulltext')
         text = open(text_path, encoding="utf-8").read()
         words = word_tokenize(clean_str(text))
-        fdist = FreqDist(words)
-        words = set([word[0] for word in fdist.most_common(200)])
-        words = list(words - self.stopwords)
-        word_freq_path = os.path.join(self.path(), "{}_words_freq.txt".format(self.filename))
+        word_freq = FreqDist(words)
+        filtered_word_freq = self.dict_filter(word_freq, self.stopwords)
+        word_freq_path = self.path(type="freq")
         with open(word_freq_path, "w", encoding="utf-8") as f:
-            f.write("\n".join(words))
+            json.dump(filtered_word_freq, f)
 
     @exec(type="pdf")
     def wordcloud(self):
-        text_path = self.path(type='fulltext')
-        text = open(text_path, encoding="utf-8").read()
-        wordcloud_path = os.path.join(self.path(), "{}.pdf".format(self.filename))
+        word_freq = json.load(open(self.path(type="freq")))
+        wordcloud_path = self.path(type="pdf")
         wordcloud = WordCloud(background_color="white",
                               stopwords=self.stopwords, scale=3,
                               collocations=False, width=1000,
-                              height=750, margin=2).generate(text)
+                              height=750, margin=2).generate_from_frequencies(word_freq)
         wordcloud.to_file(wordcloud_path)
 
     def run(self):
@@ -224,14 +226,14 @@ if __name__ == "__main__":
     items = list(Fetch.parse_search_items())
     filenames = [name[1] for name in items]
 
-    # args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
-    # threads_lst = []
-    # for lst in args_lst:
-    #     pool = ThreadPool()
-    #     pool.map(run_fetch, lst)
-    #     pool.close()
-    #     pool.join()
+    args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
+    threads_lst = []
+    for lst in args_lst:
+        pool = ThreadPool()
+        pool.map(run_fetch, lst)
+        pool.close()
+        pool.join()
 
-    for name in filenames:
-        run_fetch(name)
+    # for name in filenames:
+    #     run_fetch(name)
     Fetch.run_all(filenames)
