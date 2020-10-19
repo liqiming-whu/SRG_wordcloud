@@ -7,7 +7,7 @@ from get_abstract import get_abs
 
 
 def clean_str(text):
-    text = re.sub(r"[^A-Za-z]", " ", text)
+    text = re.sub(r"[^A-Za-z0-9]", " ", text)
     text = re.sub(r"\s{2,}", " ", text)
 
     return text
