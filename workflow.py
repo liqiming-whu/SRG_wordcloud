@@ -79,10 +79,10 @@ class Fetch:
                 path = Fetch.fetch_path(self.filename, type=type)
                 if not os.path.exists(path):
                     return func(self)
-                elif not os.path.getsize(path):
+                elif os.path.getsize(path) == 0:
                     return func(self)
                 else:
-                    return None
+                    return os.path.getsize(path)
             return wrapped_func
         return exec_decorater
 
@@ -151,7 +151,11 @@ class Fetch:
             for row in reader:
                 pmid = row[0]
                 source = row[3]
-                _, doi = self.parse_source(source)
+                try:
+                    _, doi = self.parse_source(source)
+                except Exception:
+                    continue
+                    self.logfile.log("Article {} doi not found.")
                 page = Article(pmid, doi, self.logfile)
                 page_text = page.get_text()
                 if page_text:
@@ -199,7 +203,10 @@ class Fetch:
         text = ""
         for filename in filename_list:
             text_path = Fetch.fetch_path(filename, type="fulltext")
-            text += open(text_path).read()
+            try:
+                text += open(text_path).read()
+            except Exception:
+                continue
         wordcloud_path = os.path.join("results", "all.pdf")
         wordcloud = WordCloud(background_color="white",
                               stopwords=Fetch.stopwords(), scale=2,
@@ -217,12 +224,14 @@ if __name__ == "__main__":
     items = list(Fetch.parse_search_items())
     filenames = [name[1] for name in items]
 
-    args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
-    threads_lst = []
-    for lst in args_lst:
-        pool = ThreadPool()
-        pool.map(run_fetch, lst)
-        pool.close()
-        pool.join()
+    # args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
+    # threads_lst = []
+    # for lst in args_lst:
+    #     pool = ThreadPool()
+    #     pool.map(run_fetch, lst)
+    #     pool.close()
+    #     pool.join()
 
+    for name in filenames:
+        run_fetch(name)
     Fetch.run_all(filenames)
