@@ -168,7 +168,7 @@ class Fetch:
     @exec(type="freq")
     def save_word_freq(self):
         text_path = self.path(type='fulltext')
-        text = open(text_path).read()
+        text = open(text_path, encoding="utf-8").read()
         words = word_tokenize(clean_str(text))
         fdist = FreqDist(words)
         words = set([word[0] for word in fdist.most_common(200)])
@@ -180,7 +180,7 @@ class Fetch:
     @exec(type="pdf")
     def wordcloud(self):
         text_path = self.path(type='fulltext')
-        text = open(text_path).read()
+        text = open(text_path, encoding="utf-8").read()
         wordcloud_path = os.path.join(self.path(), "{}.pdf".format(self.filename))
         wordcloud = WordCloud(background_color="white",
                               stopwords=self.stopwords, scale=3,
@@ -189,7 +189,7 @@ class Fetch:
         wordcloud.to_file(wordcloud_path)
 
     def run(self):
-        self.logfile.log("Start fetch {}...".format(self.filename))
+        self.logfile.log("Start fetch {}...\n".format(self.filename))
         count = self.search()
         if count:
             self.get_full_text()
