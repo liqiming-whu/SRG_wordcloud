@@ -97,7 +97,7 @@ class Fetch:
             os.mkdir(outdir)
         search_results = Search_Pubmed(query)
         count = int(search_results.count)
-        self.logfile.log("Query: {}, Count: {}.".format(query, count))
+        self.logfile.log("Query: {}, Count: {}.\n".format(query, count))
         if count:
             csvfile = os.path.join(outdir, self.filename+"_info.csv")
             search_results.save_info(csvfile)
