@@ -177,12 +177,12 @@ class Fetch:
 
     @staticmethod
     def dict_filter(word_freq, stopwords):
-        return dict((word, word_freq[word]) for word in word_freq if word not in stopwords)
+        return dict((word.capitalize(), word_freq[word]) for word in word_freq if word not in stopwords)
 
     @exec(type="freq")
     def save_word_freq(self):
         text_path = self.path(type='fulltext')
-        text = open(text_path, encoding="utf-8").read()
+        text = open(text_path, encoding="utf-8").read().lower()
         words = word_tokenize(clean_str(text))
         word_freq = FreqDist(words)
         filtered_word_freq = Fetch.dict_filter(word_freq, self.stopwords)
@@ -216,7 +216,7 @@ class Fetch:
         for filename in filename_list:
             text_path = Fetch.fetch_path(filename, type="fulltext")
             try:
-                text += open(text_path).read()
+                text += open(text_path).read().lower()
             except Exception:
                 continue
         words = word_tokenize(clean_str(text))
