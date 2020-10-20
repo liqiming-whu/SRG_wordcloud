@@ -114,6 +114,8 @@ class Fetch:
             return os.path.join("results", self.filename, "{}_words_freq.json".format(self.filename))
         if type == "pdf":
             return os.path.join("results", self.filename, "{}.pdf".format(self.filename))
+        if type == "articles":
+            return os.path.join("results", self.filename, "artciles")
 
         return os.path.join("results", self.filename)
 
@@ -144,15 +146,19 @@ class Fetch:
     def get_full_text(self):
         info = open(self.path(type="info"))
         reader = csv.reader(info)
-        count = 0
         full_text_path = self.path(type="fulltext")
+        article_apth = self.path(type="articles")
+        if not os.path.exists(article_apth):
+            os.mkdir(article_apth)
         from full_text import Article
         with open(full_text_path, "w", encoding="utf-8") as f:
-            text = ""
             next(reader)
             for row in reader:
                 pmid = row[0]
                 source = row[3]
+                arti_path = os.path.join(article_apth, "{}.txt".format(pmid))
+                if os.path.exists(arti_path) and os.path.getsize(arti_path):
+                    continue
                 try:
                     _, doi = self.parse_source(source)
                 except Exception:
@@ -161,11 +167,13 @@ class Fetch:
                 page = Article(pmid, doi, self.logfile)
                 page_text = page.get_text()
                 if page_text:
-                    count += 1
-                    text += page_text
-            f.write(text)
+                    with open(arti_path, "w", encoding="utf-8") as p:
+                        p.write(page_text)
+            file_list = os.listdir(article_apth)
+            for filename in file_list:
+                f.write(open(os.path.join(article_apth, filename)).read())
+        self.logfile.log("{} articles have been saved.\n".format(len(file_list)))
         Article.browser.quit()
-        self.logfile.log("{} articles have been saved.\n".format(count))
 
     @staticmethod
     def dict_filter(word_freq, stopwords):
