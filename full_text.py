@@ -29,7 +29,7 @@ class Article:
             self.logfile.log("Article {} doi: {} conection closed.\n".format(self.id, self.doi))
             return "Error"
         finally:
-            return "Error"
+            return ""
 
         title = self.browser.title
 
