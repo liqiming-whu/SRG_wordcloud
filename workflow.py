@@ -5,7 +5,6 @@ import time
 import json
 from functools import wraps
 from pubmed import Search_Pubmed
-from generate_stopwords import clean_str
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords as StopWords
 from nltk.probability import FreqDist
@@ -50,8 +49,10 @@ class Fetch:
 
     @staticmethod
     def stopwords():
-        stopwords = set(line.rstrip() for line in open("stopwords.txt"))
-        add = set(line.rstrip() for line in open("supplementary_stopwords.txt"))
+        stopwords_path = os.path.jon('data', 'stopwords.txt')
+        sup_stopwords_path = os.path.join('data', 'supplementary_stopwords.txt')
+        stopwords = set(line.rstrip() for line in open(stopwords_path))
+        add = set(line.rstrip() for line in open(sup_stopwords_path))
         stopwords = stopwords | add | set(StopWords.words('english'))
 
         return stopwords
@@ -157,7 +158,7 @@ class Fetch:
                 pmid = row[0]
                 source = row[3]
                 arti_path = os.path.join(article_apth, "{}.txt".format(pmid))
-                if os.path.exists(arti_path) and os.path.getsize(arti_path):
+                if os.path.exists(arti_path) and os.path.getsize(arti_path) > 500:
                     continue
                 try:
                     _, doi = self.parse_source(source)
@@ -183,7 +184,7 @@ class Fetch:
     def save_word_freq(self):
         text_path = self.path(type='fulltext')
         text = open(text_path, encoding="utf-8").read().lower()
-        words = word_tokenize(clean_str(text))
+        words = word_tokenize(text)
         word_freq = FreqDist(words)
         filtered_word_freq = Fetch.dict_filter(word_freq, self.stopwords)
         word_freq_path = self.path(type="freq")
@@ -219,7 +220,7 @@ class Fetch:
                 text += open(text_path).read().lower()
             except Exception:
                 continue
-        words = word_tokenize(clean_str(text))
+        words = word_tokenize(text)
         word_freq = FreqDist(words)
         filtered_word_freq = Fetch.dict_filter(word_freq, Fetch.stopwords())
         wordcloud_path = os.path.join("results", "all.pdf")

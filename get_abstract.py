@@ -24,7 +24,3 @@ def get_abs(file):
             continue
     return text
 
-
-if __name__ == '__main__':
-    text = get_abs(os.path.join("download", "2015_2016.xml"))
-    print(text)

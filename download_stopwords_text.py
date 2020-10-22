@@ -83,10 +83,11 @@ def search(journal, mindate, maxdate, outfile):
 
 
 if __name__ == '__main__':
-    if not os.path.exists("stopwords_text"):
-        os.mkdir("stopwords_text")
+    stop_words_path = os.path.join("data", "stopwords_text")
+    if not os.path.exists(stop_words_path):
+        os.makedirs(stop_words_path)
     date = ['1990\01\01', '2000\01\01', '2010\01\01', '2020\01\01']
 
     for mindate, maxdate in zip(date[:-1], date[1:]):
         search("Nature[ta] OR Science[ta] OR Cell[ta]", mindate, maxdate,
-               "stopwords_text/"+mindate[:4]+"_"+maxdate[:4]+".xml")
+               os.path.join(stop_words_path, mindate[:4]+"_"+maxdate[:4]+".xml"))

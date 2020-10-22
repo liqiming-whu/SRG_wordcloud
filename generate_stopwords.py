@@ -6,6 +6,9 @@ from nltk.probability import FreqDist
 from get_abstract import get_abs
 
 
+stop_words_path = os.path.join("data", "stopwords_text")
+
+
 def clean_str(text):
     text = re.sub(r"[^A-Za-z0-9]", " ", text)
     text = re.sub(r"\s{2,}", " ", text)
@@ -26,13 +29,13 @@ def get_stopwords(text):
     fdist = FreqDist(words)
     stopwords = fdist.most_common(200)
     print(stopwords)
-    with open("stopwords.txt", "w", encoding="utf-8") as f:
+    with open(os.path.join(stop_words_path, "stopwords.txt"), "w", encoding="utf-8") as f:
         for word in stopwords:
             print(word[0], file=f)
 
 
 def main():
-    get_stopwords(read_abstract("stopwords_text"))
+    get_stopwords(read_abstract(stop_words_path))
 
 
 if __name__ == "__main__":

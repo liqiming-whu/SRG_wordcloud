@@ -61,5 +61,8 @@ class Article:
                 self.logfile.log("Request failed. Article {} doi: {}.\n".format(self.id, self.doi))
                 return ""
             text = "".join(text_list)
+            if len(text) < 500:
+                return ""
+                self.logfile.log("Article {} doi: {} Full text not found.\n".format(self.id, self.doi))
             self.logfile.log("Article {} doi: {} saved.\n".format(self.id, self.doi))
         return text
