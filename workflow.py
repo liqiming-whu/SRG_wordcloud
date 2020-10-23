@@ -160,6 +160,8 @@ class Fetch:
                 arti_path = os.path.join(article_apth, "{}.txt".format(pmid))
                 if os.path.exists(arti_path) and os.path.getsize(arti_path) > 500:
                     continue
+                elif os.path.exists(arti_path):
+                    os.unlink(arti_path)
                 try:
                     _, doi = self.parse_source(source)
                 except Exception:
