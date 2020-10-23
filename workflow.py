@@ -59,7 +59,8 @@ class Fetch:
 
     @staticmethod
     def parse_search_items():
-        with open("species.csv") as f:
+        species_path = os.path.join("data", "species.csv")
+        with open(species_path) as f:
             for line in f:
                 fileds = line.rstrip().split(",")
                 name, alias = fileds[0], fileds[1]
