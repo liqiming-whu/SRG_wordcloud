@@ -49,7 +49,7 @@ class Fetch:
 
     @staticmethod
     def stopwords():
-        stopwords_path = os.path.jon('data', 'stopwords.txt')
+        stopwords_path = os.path.join('data', 'stopwords.txt')
         sup_stopwords_path = os.path.join('data', 'supplementary_stopwords.txt')
         stopwords = set(line.rstrip() for line in open(stopwords_path))
         add = set(line.rstrip() for line in open(sup_stopwords_path))
@@ -59,8 +59,8 @@ class Fetch:
 
     @staticmethod
     def parse_search_items():
-        species = os.path.join("data", "species.csv")
-        with open(species) as f:
+        species_path = os.path.join("data", "species.csv")
+        with open(species_path) as f:
             for line in f:
                 fileds = line.rstrip().split(",")
                 name, alias = fileds[0], fileds[1]
@@ -161,6 +161,8 @@ class Fetch:
                 arti_path = os.path.join(article_apth, "{}.txt".format(pmid))
                 if os.path.exists(arti_path) and os.path.getsize(arti_path) > 500:
                     continue
+                elif os.path.exists(arti_path):
+                    os.unlink(arti_path)
                 try:
                     _, doi = self.parse_source(source)
                 except Exception:
