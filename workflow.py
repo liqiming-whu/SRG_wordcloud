@@ -49,7 +49,7 @@ class Fetch:
 
     @staticmethod
     def stopwords():
-        stopwords_path = os.path.jion('data', 'stopwords.txt')
+        stopwords_path = os.path.join('data', 'stopwords.txt')
         sup_stopwords_path = os.path.join('data', 'supplementary_stopwords.txt')
         stopwords = set(line.rstrip() for line in open(stopwords_path))
         add = set(line.rstrip() for line in open(sup_stopwords_path))
