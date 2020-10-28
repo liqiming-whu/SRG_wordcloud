@@ -15,7 +15,7 @@ class Search_Pubmed:
         self.retmax = retmax
         self.count = Search_Pubmed.get_count(keywords)
         self.idlist = Search_Pubmed.search(keywords, retmax)
-        print(self.__str__())
+        print(self)
 
     def __repr__(self):
         return "Search '{}', get {} results.".format(self.keywords, self.count)

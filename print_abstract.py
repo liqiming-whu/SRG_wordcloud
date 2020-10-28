@@ -13,7 +13,7 @@ Entrez.api_key = "c80ce212c7179f0bbfbd88495a91dd356708"
 stopwords_path = os.path.jon('data', 'stopwords.txt')
 sup_stopwords_path = os.path.join('data', 'supplementary_stopwords.txt')
 stopwords = set(line.rstrip() for line in open(stopwords_path))
-add = set(line.rstrip() for line in open(sup_stopwords_path ))
+add = set(line.rstrip() for line in open(sup_stopwords_path))
 stopwords = stopwords | add
 
 

@@ -81,7 +81,7 @@ Sf1
 Six4
 Sohlh1
 Sohlh2
-Sox10,
+Sox10
 Sox2
 SOX3
 Sox8
