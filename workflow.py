@@ -175,7 +175,7 @@ class Fetch:
                         p.write(page_text)
             file_list = os.listdir(article_apth)
             for filename in file_list:
-                f.write(open(os.path.join(article_apth, filename)).read())
+                f.write(open(os.path.join(article_apth, filename), encoding='utf-8').read())
         self.logfile.log("{} articles have been saved.\n".format(len(file_list)))
         Article.browser.quit()
 
