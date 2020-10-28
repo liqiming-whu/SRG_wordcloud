@@ -168,9 +168,13 @@ class Fetch:
                 try:
                     _, doi = self.parse_source(source)
                 except Exception:
+                    self.logfile.log("Article {} doi not found.\n".format(pmid))
                     continue
-                    self.logfile.log("Article {} doi not found.")
-                page = Article(pmid, doi, self.logfile)
+                try:
+                    page = Article(pmid, doi, self.logfile)
+                except Exception:
+                    self.logfile.log("Article {} connect failed.\n".format(pmid))
+                    continue
                 page_text = page.get_text()
                 if page_text:
                     with open(arti_path, "w", encoding="utf-8") as p:
