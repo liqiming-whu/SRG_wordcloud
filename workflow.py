@@ -258,6 +258,7 @@ if __name__ == "__main__":
     #     pool.map(run_fetch, lst)
     #     pool.close()
     #     pool.join()
-    # Fetch.run_all(filenames)
 
-    run_fetch("Danio_rerio")
+    for filename in filenames:
+        run_fetch(filename)
+    Fetch.run_all(filenames)
