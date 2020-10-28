@@ -4,7 +4,9 @@ import csv
 import time
 import json
 from functools import wraps
+from collections import Counter
 from pubmed import Search_Pubmed
+from text_utils import process_text, process_word_freq
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords as StopWords
 from nltk.probability import FreqDist
@@ -181,27 +183,30 @@ class Fetch:
 
     @staticmethod
     def dict_filter(word_freq, stopwords):
-        return dict((word.capitalize(), word_freq[word]) for word in word_freq if word not in stopwords)
+        return Counter(dict((word, word_freq[word]) for word in word_freq.keys() if word not in stopwords))
 
     @exec(type="freq")
     def save_word_freq(self):
         text_path = self.path(type='fulltext')
-        text = open(text_path, encoding="utf-8").read().lower()
-        words = word_tokenize(text)
+        text = open(text_path, encoding="utf-8").read()
+        words = word_tokenize(process_text(text))
         word_freq = FreqDist(words)
-        filtered_word_freq = Fetch.dict_filter(word_freq, self.stopwords)
+        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, self.stopwords))
+
         word_freq_path = self.path(type="freq")
         with open(word_freq_path, "w", encoding="utf-8") as f:
             json.dump(filtered_word_freq, f)
+        word_path = self.path()
+        with open(os.path.join(word_path, "word_freq.txt"), "w", encoding="utf-8") as f:
+            for key, value in filtered_word_freq.items():
+                f.write("{}\n".format(key))
 
     @exec(type="pdf")
     def wordcloud(self):
         word_freq = json.load(open(self.path(type="freq")))
         wordcloud_path = self.path(type="pdf")
-        wordcloud = WordCloud(background_color="white",
-                              stopwords=self.stopwords, scale=3,
-                              collocations=False, width=1000,
-                              height=750, margin=2).generate_from_frequencies(word_freq)
+        wordcloud = WordCloud(background_color="white",scale=3,
+                              width=1000, height=750, margin=2).generate_from_frequencies(word_freq)
         wordcloud.to_file(wordcloud_path)
 
     def run(self):
@@ -223,16 +228,16 @@ class Fetch:
                 text += open(text_path).read().lower()
             except Exception:
                 continue
-        words = word_tokenize(text)
+        words = word_tokenize(process_text(text))
         word_freq = FreqDist(words)
-        filtered_word_freq = Fetch.dict_filter(word_freq, Fetch.stopwords())
+        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, Fetch.stopwords()))
         wordcloud_path = os.path.join("results", "all.pdf")
         word_path = os.path.join("results", "words.txt")
         with open(word_path, "w") as f:
             f.write("\n".join(filtered_word_freq.keys()))
         wordcloud = WordCloud(background_color="white",
                               stopwords=Fetch.stopwords(), scale=2,
-                              collocations=False, width=1000,
+                              collocations=True, width=1000,
                               height=750, margin=2).generate_from_frequencies(filtered_word_freq)
         wordcloud.to_file(wordcloud_path)
 
@@ -246,14 +251,13 @@ if __name__ == "__main__":
     items = list(Fetch.parse_search_items())
     filenames = [name[1] for name in items]
 
-    args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
-    threads_lst = []
-    for lst in args_lst:
-        pool = ThreadPool()
-        pool.map(run_fetch, lst)
-        pool.close()
-        pool.join()
+    # args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
+    # threads_lst = []
+    # for lst in args_lst:
+    #     pool = ThreadPool()
+    #     pool.map(run_fetch, lst)
+    #     pool.close()
+    #     pool.join()
+    # Fetch.run_all(filenames)
 
-    # for name in filenames:
-    #     run_fetch(name)
-    Fetch.run_all(filenames)
+    run_fetch("Danio_rerio")
