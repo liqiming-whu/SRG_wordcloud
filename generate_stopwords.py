@@ -10,8 +10,7 @@ stop_words_path = os.path.join("data", "stopwords_text")
 
 
 def clean_str(text):
-    text = re.sub(r"[^A-Za-z0-9αβγ\.\(\)-_]", " ", text)
-    text = re.sub(r"\s+\d+\s+", " ", text)
+    text = re.sub(r"[^A-Za-z0-9αβγ.()-_]", " ", text)
     text = re.sub(r"\s+[A-Za-zαβγ]\s+", " ", text)
     text = re.sub(r"\s{2,}", " ", text)
 

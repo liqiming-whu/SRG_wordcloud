@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import os
+import re
 import csv
 import time
 import json
 from functools import wraps
 from collections import Counter
+import matplotlib.pyplot as plt
 from pubmed import Search_Pubmed
 from text_utils import process_text, process_word_freq
 from nltk.tokenize import word_tokenize
@@ -53,8 +55,8 @@ class Fetch:
     def stopwords():
         stopwords_path = os.path.join('data', 'stopwords.txt')
         sup_stopwords_path = os.path.join('data', 'supplementary_stopwords.txt')
-        stopwords = set(line.rstrip() for line in open(stopwords_path))
-        add = set(line.rstrip() for line in open(sup_stopwords_path))
+        stopwords = set(open(stopwords_path).read().split())
+        add = set(open(sup_stopwords_path).read().split())
         stopwords = stopwords | add | set(StopWords.words('english'))
 
         return stopwords
@@ -187,9 +189,22 @@ class Fetch:
 
     @staticmethod
     def dict_filter(word_freq, stopwords):
-        word_freq = Counter(dict((word, word_freq[word]) for word in word_freq.keys() if word not in stopwords))
-
-        return Counter(dict(word_freq.most_common(1000)))
+        word_f = dict()
+        for word, count in word_freq.items():
+            if len(word.split()) > 2:
+                continue
+            if word in stopwords:
+                continue
+            if re.match(r'\d+$', word):
+                continue
+            if re.match(r'[+-/?.,]$', word):
+                continue
+            if re.match(r'\S+\.$', word):
+                continue
+            if re.match(r'\d+\.\d+$', word):
+                continue
+            word_f[word] = count
+        return Counter(word_f)
 
     @exec(type="freq")
     def save_word_freq(self):
@@ -211,8 +226,13 @@ class Fetch:
     def wordcloud(self):
         word_freq = json.load(open(self.path(type="freq")))
         wordcloud_path = self.path(type="pdf")
-        wordcloud = WordCloud(background_color="white",scale=3,
-                              width=1000, height=750, margin=2).generate_from_frequencies(word_freq)
+        wordcloud = WordCloud(background_color="white",scale=2,
+                              width=600, height=400, margin=2).generate_from_frequencies(word_freq)
+        # plt.figure(figsize=(6, 4))
+        # plt.imshow(wordcloud, interpolation='bilinear')
+        # plt.axis('off')
+        # plt.savefig(wordcloud_path)
+        # plt.close()
         wordcloud.to_file(wordcloud_path)
 
     def run(self):
@@ -241,11 +261,13 @@ class Fetch:
         word_path = os.path.join("results", "words.txt")
         with open(word_path, "w") as f:
             f.write("\n".join(filtered_word_freq.keys()))
-        wordcloud = WordCloud(background_color="white",
-                              stopwords=Fetch.stopwords(), scale=2,
-                              collocations=True, width=1000,
-                              height=750, margin=2).generate_from_frequencies(filtered_word_freq)
-        wordcloud.to_file(wordcloud_path)
+        wordcloud = WordCloud(background_color="white",scale=2,
+                              collocations=True, width=600,
+                              height=400, margin=2).generate_from_frequencies(filtered_word_freq)
+        plt.imshow(wordcloud, interpolation='bilinear')
+        plt.axis('off')
+        plt.savefig(wordcloud_path)
+        plt.close()
 
 
 def run_fetch(filename):
@@ -268,3 +290,5 @@ if __name__ == "__main__":
     for filename in filenames:
         run_fetch(filename)
     Fetch.run_all(filenames)
+
+    # run_fetch("Danio_rerio")
