@@ -247,7 +247,7 @@ class Fetch:
     def run(self):
         self.logfile.log("Start fetch {}...\n".format(self.filename))
         count = self.search()
-        if count > 10:
+        if count >= 10:
             self.get_full_text()
             self.logfile.close()
             self.save_word_freq()
