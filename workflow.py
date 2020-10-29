@@ -105,7 +105,9 @@ class Fetch:
         search_results = Search_Pubmed(query)
         count = int(search_results.count)
         self.logfile.log("Query: {}, Count: {}.\n".format(query, count))
-        if count:
+        if count > 10:
+            if not os.path.exists(outdir):
+                os.mkdir(outdir)
             csvfile = os.path.join(outdir, self.filename+"_info.csv")
             search_results.save_info(csvfile)
 
@@ -196,17 +198,17 @@ class Fetch:
         word_freq = dict(word_freq.most_common(20000))
         word_f = dict()
         for word, count in word_freq.items():
-            if len(word.split()) > 2:
+            if len(word.split("_")) > 2:
+                continue
+            if len(word.split("-")) > 2:
                 continue
             if word in stopwords:
                 continue
-            if re.match(r'\d+$', word):
+            if re.match(r'\d+', word):
                 continue
             if re.match(r'[+-/?.,]$', word):
                 continue
             if re.match(r'\S+\.$', word):
-                continue
-            if re.match(r'\d+\.\d+$', word):
                 continue
             word_f[word] = count
         return Counter(word_f)
@@ -245,7 +247,7 @@ class Fetch:
     def run(self):
         self.logfile.log("Start fetch {}...\n".format(self.filename))
         count = self.search()
-        if count:
+        if count > 10:
             self.get_full_text()
             self.logfile.close()
             self.save_word_freq()
