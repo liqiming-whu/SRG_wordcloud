@@ -120,6 +120,8 @@ class Fetch:
             return os.path.join("results", self.filename, "{}_words_freq.json".format(self.filename))
         if type == "pdf":
             return os.path.join("results", self.filename, "{}.pdf".format(self.filename))
+        if type == "svg":
+            return os.path.join("results", self.filename, "{}.svg".format(filename))
         if type == "articles":
             return os.path.join("results", self.filename, "artciles")
 
@@ -135,6 +137,8 @@ class Fetch:
             return os.path.join("results", filename, "{}_words_freq.json".format(filename))
         if type == "pdf":
             return os.path.join("results", filename, "{}.pdf".format(filename))
+        if type == "svg":
+            return os.path.join("results", filename, "{}.svg".format(filename))
         if type == "all":
             return os.path.join("results", "all.pdf")
 
@@ -189,6 +193,7 @@ class Fetch:
 
     @staticmethod
     def dict_filter(word_freq, stopwords):
+        word_freq = dict(word_freq.most_common(20000))
         word_f = dict()
         for word, count in word_freq.items():
             if len(word.split()) > 2:
@@ -226,14 +231,16 @@ class Fetch:
     def wordcloud(self):
         word_freq = json.load(open(self.path(type="freq")))
         wordcloud_path = self.path(type="pdf")
-        wordcloud = WordCloud(background_color="white",scale=2,
+        svg_path = self.path(type="svg")
+        wordcloud = WordCloud(background_color="white", scale=3,
                               width=600, height=400, margin=2).generate_from_frequencies(word_freq)
-        # plt.figure(figsize=(6, 4))
-        # plt.imshow(wordcloud, interpolation='bilinear')
-        # plt.axis('off')
-        # plt.savefig(wordcloud_path)
-        # plt.close()
+        plt.axis('off')
+        plt.imshow(wordcloud)
+        plt.show()
+        plt.close()
         wordcloud.to_file(wordcloud_path)
+        with open(svg_path, "w", encoding="utf-8") as f:
+            f.write(wordcloud.to_svg())
 
     def run(self):
         self.logfile.log("Start fetch {}...\n".format(self.filename))
@@ -258,16 +265,20 @@ class Fetch:
         word_freq = FreqDist(words)
         filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, Fetch.stopwords()))
         wordcloud_path = os.path.join("results", "all.pdf")
+        svg_path = os.path.join("results", "all.svg")
         word_path = os.path.join("results", "words.txt")
         with open(word_path, "w") as f:
             f.write("\n".join(filtered_word_freq.keys()))
-        wordcloud = WordCloud(background_color="white",scale=2,
+        wordcloud = WordCloud(background_color="white", scale=3,
                               collocations=True, width=600,
                               height=400, margin=2).generate_from_frequencies(filtered_word_freq)
-        plt.imshow(wordcloud, interpolation='bilinear')
         plt.axis('off')
-        plt.savefig(wordcloud_path)
+        plt.imshow(wordcloud)
+        plt.show()
         plt.close()
+        wordcloud.to_file(wordcloud_path)
+        with open(svg_path, "w", encoding="utf-8") as f:
+            f.write(wordcloud.to_svg())
 
 
 def run_fetch(filename):
