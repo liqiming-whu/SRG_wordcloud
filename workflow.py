@@ -187,7 +187,9 @@ class Fetch:
 
     @staticmethod
     def dict_filter(word_freq, stopwords):
-        return Counter(dict((word, word_freq[word]) for word in word_freq.keys() if word not in stopwords))
+        word_freq = Counter(dict((word, word_freq[word]) for word in word_freq.keys() if word not in stopwords))
+
+        return Counter(dict(word_freq.most_common(1000)))
 
     @exec(type="freq")
     def save_word_freq(self):
