@@ -243,6 +243,29 @@ class Fetch:
         wordcloud.to_file(wordcloud_path)
         with open(svg_path, "w", encoding="utf-8") as f:
             f.write(wordcloud.to_svg())
+    
+    def word_source(self):
+        source_dir = os.path.join(self.path(), "word_source")
+        if not os.path.exists(source_dir):
+            os.mkdir(source_dir)
+        freq = json.load(open(self.path(type="freq"))).keys()
+        article_dir = self.path(type="articles")
+        detail = csv.reader(open(self.path(type="info")))
+        next(detail)
+        detail_dict = dict()
+        for row in detail:
+            detail_dict[row[0]] = row
+        for word in freq:
+            source_p = os.path.join(source_dir, word.replace(" ", "_")+".csv")
+            source_f = open(source_p, "w", newline="", encoding="utf-8")
+            csvf = csv.writer(source_f)
+            csvf.writerow(["Pubmed_ID", "Title", "Author", "Source", "Abstract"])
+            for art in os.listdir(article_dir):
+                pmid = art.rstrip(".txt")
+                art_p = os.path.join(article_dir, art)
+                if word in open(art_p, encoding="utf-8").read():
+                    csvf.writerow(detail_dict[pmid])
+            source_f.close()
 
     def run(self):
         self.logfile.log("Start fetch {}...\n".format(self.filename))
@@ -252,19 +275,17 @@ class Fetch:
             self.logfile.close()
             self.save_word_freq()
             self.wordcloud()
+            self.word_source()
         self.logfile.close()
 
     @staticmethod
     def run_all(filename_list):
-        text = ""
+        word_freq = Counter()
         for filename in filename_list:
-            text_path = Fetch.fetch_path(filename, type="fulltext")
-            try:
-                text += open(text_path).read().lower()
-            except Exception:
-                continue
-        words = word_tokenize(process_text(text))
-        word_freq = FreqDist(words)
+            freq_path = Fetch.fetch_path(filename, type="freq")
+            if os.path.exists(freq_path):
+                word_freq += Counter(json.load(open(freq_path)))
+
         filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, Fetch.stopwords()))
         wordcloud_path = os.path.join("results", "all.pdf")
         svg_path = os.path.join("results", "all.svg")
@@ -300,8 +321,9 @@ if __name__ == "__main__":
     #     pool.close()
     #     pool.join()
 
-    for filename in filenames:
-        run_fetch(filename)
-    Fetch.run_all(filenames)
+    # for filename in filenames:
+    #     run_fetch(filename)
+    # Fetch.run_all(filenames)
 
-    # run_fetch("Danio_rerio")
+    run_fetch("Danio_rerio")
+    Fetch.run_all(filenames)
