@@ -19,7 +19,17 @@ def contain_binary_phrase(text):
     return text
 
 
-def process_word_freq(word_freq):
+def process_freq_dict(freq_dict, filename):
+    words_freq_dir = os.path.join("results", "words_freq")
+    if os.path.exists(words_freq_dir):
+        os.mkdir(words_freq_dir)
+    if not freq_dict:
+        pass
+
+
+def process_word_freq(word_freq, filename):
+    if not word_freq:
+        return process_freq_dict(None, filename)
     print("word_freq length: ", len(word_freq))
     uniq = Counter(word.lower() for word in word_freq)
     duplicate = [word for word, freq in uniq.items() if freq > 1]
@@ -42,7 +52,9 @@ def process_word_freq(word_freq):
     genes_drugs = [(word, freq) for (word, freq) in low_freq if word in GENES or word in DRUGS]
     freq = word_freq.most_common(200 - len(genes_drugs)) + genes_drugs
 
-    return dict((word.replace("_", " "), count) for word, count in freq)
+    freq_dict = dict((word.replace("_", " "), count) for word, count in freq)
+
+    return freq_dict
 
 
 def process_text(text):

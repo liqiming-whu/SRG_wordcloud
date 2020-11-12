@@ -123,7 +123,7 @@ class Fetch:
         if type == "pdf":
             return os.path.join("results", self.filename, "{}.pdf".format(self.filename))
         if type == "svg":
-            return os.path.join("results", self.filename, "{}.svg".format(filename))
+            return os.path.join("results", self.filename, "{}.svg".format(self.filename))
         if type == "articles":
             return os.path.join("results", self.filename, "artciles")
 
@@ -219,7 +219,7 @@ class Fetch:
         text = open(text_path, encoding="utf-8").read()
         words = word_tokenize(process_text(text))
         word_freq = FreqDist(words)
-        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, self.stopwords))
+        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, self.stopwords), self.filename)
 
         word_freq_path = self.path(type="freq")
         with open(word_freq_path, "w", encoding="utf-8") as f:
@@ -228,6 +228,13 @@ class Fetch:
         with open(os.path.join(word_path, "word_freq.txt"), "w", encoding="utf-8") as f:
             for key, value in filtered_word_freq.items():
                 f.write("{}\n".format(key))
+
+    def generate_freq(self):
+        word_freq_path = self.path(type="freq")
+        word_freq = process_word_freq(None, self.filename)
+        with open(word_freq_path, "w", encoding="utf-8") as f:
+            json.dump(word_freq, f)
+
 
     @exec(type="pdf")
     def wordcloud(self):
@@ -286,7 +293,7 @@ class Fetch:
             if os.path.exists(freq_path):
                 word_freq += Counter(json.load(open(freq_path)))
 
-        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, Fetch.stopwords()))
+        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, Fetch.stopwords()), self.filename)
         wordcloud_path = os.path.join("results", "all.pdf")
         svg_path = os.path.join("results", "all.svg")
         word_path = os.path.join("results", "words.txt")
@@ -326,4 +333,4 @@ if __name__ == "__main__":
     # Fetch.run_all(filenames)
 
     run_fetch("Danio_rerio")
-    Fetch.run_all(filenames)
+    # Fetch.run_all(filenames)
