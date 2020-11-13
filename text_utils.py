@@ -24,7 +24,53 @@ def process_freq_dict(freq_dict, filename):
     if os.path.exists(words_freq_dir):
         os.mkdir(words_freq_dir)
     if not freq_dict:
-        pass
+        freq_tsv_dir = os.path.join("results", "freq_tsv")
+        if not os.path.exists(freq_tsv_dir):
+            os.mkdir(freq_tsv_dir)
+        freq_tsv = os.path.join(freq_tsv_dir, filename+".tsv")
+        whitelist_dir = os.path.join("whitelist_species", filename)
+        if not os.path.exists(whitelist_dir):
+            return None
+        male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
+        female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
+        with open(freq_tsv, "w", encoding="utf-8") as f:
+            for word in male:
+                f.write(word + "\t1\tmale\n")
+            for word in female:
+                f.write(word + "\t1\tfemale\n")
+        return dict((i, 1) for i in male+female)
+
+    species_stopwords = os.path.join("data", "stopwords_species", filename+".txt")
+    if os.path.exists(species_stopwords):
+        StopWords = open(species_stopwords).read().split()
+        freq_dict = dict(i for i in freq_dict.items() if i[0] not in StopWords)
+    whitelist_dir = os.path.join("whitelist_species", filename)
+    if not os.path.exists(whitelist_dir):
+        return freq_dict
+    freq = freq_dict.items()
+    male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
+    female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
+    add = [(i, 1) for i in male+female if i not in freq_dict.keys()]
+    words_count = len(freq) + len(add)
+    if words_count <= 200:
+        freq = freq + add
+    if words_count > 200:
+        freq = freq[:200-words_count] + add
+    assert len(freq) <= 200
+    freq_tsv_dir = os.path.join("results", "freq_tsv")
+    if not os.path.exists(freq_tsv_dir):
+        os.mkdir(freq_tsv_dir)
+    freq_tsv = os.path.join(freq_tsv_dir, filename+".tsv")
+
+    with open(freq_tsv, "w", encoding="utf-8") as f:
+        for word, count in freq:
+            if word in male:
+                f.write("{}\t{}\tmale\n".format(word, count))
+            elif word in female:
+                f.write("{}\t{}\tfemale\n".format(word, count))
+            else:
+                f.write("{}\t{}\tNA\n".format(word, count))
+    return dict(freq)
 
 
 def process_word_freq(word_freq, filename):
@@ -54,7 +100,7 @@ def process_word_freq(word_freq, filename):
 
     freq_dict = dict((word.replace("_", " "), count) for word, count in freq)
 
-    return freq_dict
+    return process_freq_dict(freq_dict, filename)
 
 
 def process_text(text):
