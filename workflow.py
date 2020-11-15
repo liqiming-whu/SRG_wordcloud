@@ -13,6 +13,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords as StopWords
 from nltk.probability import FreqDist
 from wordcloud import WordCloud
+from word_svg import SVG
 from multiprocessing import Pool as ThreadPool
 
 
@@ -310,6 +311,31 @@ class Fetch:
         with open(svg_path, "w", encoding="utf-8") as f:
             f.write(wordcloud.to_svg())
 
+    @staticmethod
+    def run_freq(filename_list):
+        freq = open(os.path.join("results", "freq_list.tsv"), "w", encoding='utf-8')
+        freq.write("Symbol\tSpecies\tNumber\tRGB\tSex\n")
+        for filename in filename_list:
+            word_freq_path = os.path.join("results", "freq_tsv", filename+".tsv")
+            if not os.path.exists(word_freq_path):
+                continue
+            svg = SVG(os.path.join("results", filename, filename+".svg"))
+            whitelist_dir = os.path.join("whitelist_species", filename)
+            male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
+            female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
+            word_rgb = svg.to_dict(male, female)
+            species = filename.replace("_", " ")
+            with open(word_freq_path) as f:
+                for line in f:
+                    fileds = line.split()
+                    symbol = fileds[0]
+                    number = fileds[1]
+                    rgb = word_rgb[filename]
+                    sex = fileds[2]
+                    freq.write("{}\t{}\t{}\t{}\t{}\n".format(symbol, species, number, rgb, sex))
+
+        freq.close()
+
 
 def run_fetch(filename):
     fetch = Fetch(filename)
@@ -320,17 +346,18 @@ if __name__ == "__main__":
     items = list(Fetch.parse_search_items())
     filenames = [name[1] for name in items]
 
-    # args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
-    # threads_lst = []
-    # for lst in args_lst:
-    #     pool = ThreadPool()
-    #     pool.map(run_fetch, lst)
-    #     pool.close()
-    #     pool.join()
+    args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
+    threads_lst = []
+    for lst in args_lst:
+        pool = ThreadPool()
+        pool.map(run_fetch, lst)
+        pool.close()
+        pool.join()
 
     # for filename in filenames:
     #     run_fetch(filename)
     # Fetch.run_all(filenames)
 
-    run_fetch("Danio_rerio")
+    # run_fetch("Danio_rerio")
     # Fetch.run_all(filenames)
+    Fetch.run_freq(filenames)
