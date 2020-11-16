@@ -28,7 +28,7 @@ def process_freq_dict(freq_dict, filename):
         if not os.path.exists(freq_tsv_dir):
             os.mkdir(freq_tsv_dir)
         freq_tsv = os.path.join(freq_tsv_dir, filename+".tsv")
-        whitelist_dir = os.path.join("whitelist_species", filename)
+        whitelist_dir = os.path.join("data", "whitelist_species", filename)
         if not os.path.exists(whitelist_dir):
             return None
         male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
@@ -42,12 +42,12 @@ def process_freq_dict(freq_dict, filename):
 
     species_stopwords = os.path.join("data", "stopwords_species", filename+".txt")
     if os.path.exists(species_stopwords):
-        StopWords = open(species_stopwords).read().split()
+        StopWords = open(species_stopwords).read().split("\n")
         freq_dict = dict(i for i in freq_dict.items() if i[0] not in StopWords)
-    whitelist_dir = os.path.join("whitelist_species", filename)
+    whitelist_dir = os.path.join("data", "whitelist_species", filename)
     if not os.path.exists(whitelist_dir):
         return freq_dict
-    freq = freq_dict.items()
+    freq = list(freq_dict.items())
     male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
     female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
     add = [(i, 1) for i in male+female if i not in freq_dict.keys()]

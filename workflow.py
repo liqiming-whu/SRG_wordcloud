@@ -233,12 +233,15 @@ class Fetch:
     def generate_freq(self):
         word_freq_path = self.path(type="freq")
         word_freq = process_word_freq(None, self.filename)
-        with open(word_freq_path, "w", encoding="utf-8") as f:
-            json.dump(word_freq, f)
+        if word_freq:
+            with open(word_freq_path, "w", encoding="utf-8") as f:
+                json.dump(word_freq, f)
 
 
-    @exec(type="pdf")
+    @exec(type="svg")
     def wordcloud(self):
+        if not os.path.exists(self.path(type="freq")):
+            return
         word_freq = json.load(open(self.path(type="freq")))
         wordcloud_path = self.path(type="pdf")
         svg_path = self.path(type="svg")
@@ -264,7 +267,7 @@ class Fetch:
         for row in detail:
             detail_dict[row[0]] = row
         for word in freq:
-            source_p = os.path.join(source_dir, word.replace(" ", "_")+".csv")
+            source_p = os.path.join(source_dir, word.replace(" ", "_").replace("/", "_")+".csv")
             source_f = open(source_p, "w", newline="", encoding="utf-8")
             csvf = csv.writer(source_f)
             csvf.writerow(["Pubmed_ID", "Title", "Author", "Source", "Abstract"])
@@ -284,6 +287,9 @@ class Fetch:
             self.save_word_freq()
             self.wordcloud()
             self.word_source()
+        else:
+            self.generate_freq()
+            self.wordcloud()
         self.logfile.close()
 
     @staticmethod
@@ -320,18 +326,18 @@ class Fetch:
             if not os.path.exists(word_freq_path):
                 continue
             svg = SVG(os.path.join("results", filename, filename+".svg"))
-            whitelist_dir = os.path.join("whitelist_species", filename)
+            whitelist_dir = os.path.join("data", "whitelist_species", filename)
             male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
             female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
             word_rgb = svg.to_dict(male, female)
             species = filename.replace("_", " ")
             with open(word_freq_path) as f:
                 for line in f:
-                    fileds = line.split()
+                    fileds = line.split("\t")
                     symbol = fileds[0]
                     number = fileds[1]
-                    rgb = word_rgb[filename]
-                    sex = fileds[2]
+                    rgb = word_rgb[symbol]
+                    sex = fileds[2].rstrip()
                     freq.write("{}\t{}\t{}\t{}\t{}\n".format(symbol, species, number, rgb, sex))
 
         freq.close()
@@ -346,16 +352,16 @@ if __name__ == "__main__":
     items = list(Fetch.parse_search_items())
     filenames = [name[1] for name in items]
 
-    args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
-    threads_lst = []
-    for lst in args_lst:
-        pool = ThreadPool()
-        pool.map(run_fetch, lst)
-        pool.close()
-        pool.join()
+    # args_lst = [filenames[i:i+4] for i in range(0, len(filenames), 4)]
+    # threads_lst = []
+    # for lst in args_lst:
+    #     pool = ThreadPool()
+    #     pool.map(run_fetch, lst)
+    #     pool.close()
+    #     pool.join()
 
-    # for filename in filenames:
-    #     run_fetch(filename)
+    for filename in filenames:
+        run_fetch(filename)
     # Fetch.run_all(filenames)
 
     # run_fetch("Danio_rerio")

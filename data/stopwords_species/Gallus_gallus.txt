@@ -150,7 +150,6 @@ reverse
 predicted
 Elsevier
 masculinized
-RSPO1
 Rovatsos
 RNA-seq
 polymerase
@@ -173,7 +172,10 @@ FSH
 LH
 androgenic
 TB
-Gdnf
-Gadd45g
-estradiol-17beta
 ethynylestradiol
+combined
+cognition
+acid
+transgenic
+genus
+upregulated

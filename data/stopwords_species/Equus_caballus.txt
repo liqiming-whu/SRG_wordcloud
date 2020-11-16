@@ -35,7 +35,6 @@ genotypes
 ovotestes
 external
 diagnosed
-CRE
 Kent
 mammals
 breeds
@@ -48,12 +47,10 @@ Pailhoux
 BAC
 moles
 start
-ECAX
 Consortium
 porcine
 serum
 genitalia
-ZFY
 Elsevier
 sex-reversed
 ovaries
@@ -78,7 +75,14 @@ Bugno
 reaction
 disorder
 mouse
+whole
+complement
+.In
+approach
 PIS
+hypoplastic
+stallion
+profile
 promoter
 founding
 characterized
@@ -92,9 +96,7 @@ techniques
 Meyers-Wallen
 ranging
 dog
-PAR
 appearance
-AMH
 detection
 ng/ml
 sequencing
@@ -112,7 +114,6 @@ Eicher
 abnormality
 Turner
 half-site
-STR
 hormone
 screening
 metaphase
@@ -138,8 +139,6 @@ Y-linked
 banding
 uterus
 occur
-DMRT1
-GATA4
 trait
 Two
 causes
@@ -147,7 +146,6 @@ Villagomez
 MSY
 White
 sex-determining
-Sxr
 chimeric
 translation
 mutated
@@ -169,7 +167,6 @@ Switonski
 Arabian
 heterochromatic
 AG
-B6-YDOM
 cords
 elements
 codon
@@ -183,11 +180,7 @@ short
 der
 online
 class
-ZFX
 painting
 Kit
-LH
 androgenic
-MT
-FSH
 estrogens
