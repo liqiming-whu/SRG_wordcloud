@@ -10,7 +10,7 @@ class SVG:
         self.svg = path
 
     def iter(self):
-        line_gen = open(self.svg)
+        line_gen = open(self.svg, encoding="utf-8")
         for line in line_gen:
             if line.startswith("<text"):
                 yield line
@@ -24,9 +24,9 @@ class SVG:
             word = word_patter.findall(line)[0]
             rgb = rgb_patter.findall(line)[0]
             if word in males:
-                rgb = 'rgb(116, 173, 209)'
+                rgb = 'rgb(219, 207, 202)'
             if word in females:
-                rgb = 'rgb(244, 109, 67)'
+                rgb = 'rgb(203, 203, 203)'
             word_rgb[word] = rgb
 
         return word_rgb

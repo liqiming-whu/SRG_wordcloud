@@ -4,6 +4,7 @@ import re
 import csv
 import time
 import json
+import pandas as pd
 from functools import wraps
 from collections import Counter
 import matplotlib.pyplot as plt
@@ -321,6 +322,13 @@ class Fetch:
     def run_freq(filename_list):
         freq = open(os.path.join("results", "freq_list.tsv"), "w", encoding='utf-8')
         freq.write("Symbol\tSpecies\tNumber\tRGB\tSex\n")
+        data = {
+            "Symbol": [],
+            "Species": [],
+            "Number": [],
+            "RGB": [],
+            "Sex": []
+        }
         for filename in filename_list:
             word_freq_path = os.path.join("results", "freq_tsv", filename+".tsv")
             if not os.path.exists(word_freq_path):
@@ -331,16 +339,22 @@ class Fetch:
             female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
             word_rgb = svg.to_dict(male, female)
             species = filename.replace("_", " ")
-            with open(word_freq_path) as f:
+            with open(word_freq_path, encoding="utf-8") as f:
                 for line in f:
                     fileds = line.split("\t")
                     symbol = fileds[0]
                     number = fileds[1]
                     rgb = word_rgb[symbol]
                     sex = fileds[2].rstrip()
+                    data['Symbol'].append(symbol)
+                    data['Species'].append(species)
+                    data['Number'].append(number)
+                    data['RGB'].append(rgb)
+                    data['Sex'].append(sex)
                     freq.write("{}\t{}\t{}\t{}\t{}\n".format(symbol, species, number, rgb, sex))
-
         freq.close()
+        df = pd.DataFrame(data)
+        df.to_excel(os.path.join("results", "freq_list.xlsx"), encoding='utf-8', index=False)
 
 
 def run_fetch(filename):
@@ -360,8 +374,8 @@ if __name__ == "__main__":
     #     pool.close()
     #     pool.join()
 
-    for filename in filenames:
-        run_fetch(filename)
+    # for filename in filenames:
+    #     run_fetch(filename)
     # Fetch.run_all(filenames)
 
     # run_fetch("Danio_rerio")
