@@ -32,7 +32,7 @@ def process_freq_dict(freq_dict, filename):
         if not os.path.exists(whitelist_dir):
             return None
         male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
-        female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
+        female = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
         with open(freq_tsv, "w", encoding="utf-8") as f:
             for word in male:
                 f.write(word + "\t1\tmale\n")
