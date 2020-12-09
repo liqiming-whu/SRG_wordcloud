@@ -15,7 +15,7 @@ class SVG:
             if line.startswith("<text"):
                 yield line
 
-    def to_dict(self, males, females):
+    def to_dict(self, males=[], females=[]):
         word_rgb = dict()
         word_patter = re.compile('>([^<]+)<')
         rgb_patter = re.compile('"fill:([^"]+)"')

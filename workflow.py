@@ -341,9 +341,12 @@ class Fetch:
             print(filename)
             svg = SVG(os.path.join("results", filename, filename+".svg"))
             whitelist_dir = os.path.join("data", "whitelist_species", filename)
-            male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
-            female = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
-            word_rgb = svg.to_dict(male, female)
+            if os.path.exists(whitelist_dir):
+                male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
+                female = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
+                word_rgb = svg.to_dict(male, female)
+            else:
+                word_rgb = svg.to_dict()
             species = filename.replace("_", " ")
             with open(word_freq_path, encoding="utf-8") as f:
                 for line in f:
@@ -380,8 +383,8 @@ if __name__ == "__main__":
     #     pool.close()
     #     pool.join()
 
-    for filename in filenames:
-        run_fetch(filename)
+    # for filename in filenames:
+    #     run_fetch(filename)
     # Fetch.run_all(filenames)
 
     # run_fetch("Danio_rerio")

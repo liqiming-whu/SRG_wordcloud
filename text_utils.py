@@ -46,6 +46,13 @@ def process_freq_dict(freq_dict, filename):
         freq_dict = dict(i for i in freq_dict.items() if i[0] not in StopWords)
     whitelist_dir = os.path.join("data", "whitelist_species", filename)
     if not os.path.exists(whitelist_dir):
+        freq_tsv_dir = os.path.join("results", "freq_tsv")
+        if not os.path.exists(freq_tsv_dir):
+            os.mkdir(freq_tsv_dir)
+        freq_tsv = os.path.join(freq_tsv_dir, filename+".tsv")
+        with open(freq_tsv, "w", encoding="utf-8") as f:
+            for word, count in freq_dict.items():
+                f.write("{}\t{}\tNA\n".format(word, count))
         return freq_dict
     freq = list(freq_dict.items())
     male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
