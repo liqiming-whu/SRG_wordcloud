@@ -244,6 +244,11 @@ class Fetch:
         if not os.path.exists(self.path(type="freq")):
             return
         word_freq = json.load(open(self.path(type="freq")))
+        if self.filename == "Oreochromis_niloticus":
+            for word in word_freq.keys():
+                if word_freq[word] == 1:
+                    word_freq[word] = 2
+
         wordcloud_path = self.path(type="pdf")
         svg_path = self.path(type="svg")
         wordcloud = WordCloud(background_color="white", scale=3,
@@ -333,10 +338,11 @@ class Fetch:
             word_freq_path = os.path.join("results", "freq_tsv", filename+".tsv")
             if not os.path.exists(word_freq_path):
                 continue
+            print(filename)
             svg = SVG(os.path.join("results", filename, filename+".svg"))
             whitelist_dir = os.path.join("data", "whitelist_species", filename)
             male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
-            female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
+            female = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
             word_rgb = svg.to_dict(male, female)
             species = filename.replace("_", " ")
             with open(word_freq_path, encoding="utf-8") as f:

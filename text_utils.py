@@ -49,7 +49,7 @@ def process_freq_dict(freq_dict, filename):
         return freq_dict
     freq = list(freq_dict.items())
     male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "male.txt"))]
-    female = male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
+    female = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, "female.txt"))]
     add = [(i, 1) for i in male+female if i not in freq_dict.keys()]
     words_count = len(freq) + len(add)
     if words_count <= 200:
