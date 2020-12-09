@@ -127,7 +127,7 @@ class Fetch:
         if type == "svg":
             return os.path.join("results", self.filename, "{}.svg".format(self.filename))
         if type == "articles":
-            return os.path.join("results", self.filename, "artciles")
+            return os.path.join("results", self.filename, "articles")
 
         return os.path.join("results", self.filename)
 
