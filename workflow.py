@@ -247,7 +247,7 @@ class Fetch:
         if self.filename == "Oreochromis_niloticus":
             for word in word_freq.keys():
                 if word_freq[word] == 1:
-                    word_freq[word] = 2
+                    word_freq[word] = 10
 
         wordcloud_path = self.path(type="pdf")
         svg_path = self.path(type="svg")
@@ -306,7 +306,7 @@ class Fetch:
             if os.path.exists(freq_path):
                 word_freq += Counter(json.load(open(freq_path)))
 
-        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, Fetch.stopwords()), self.filename)
+        filtered_word_freq = process_word_freq(Fetch.dict_filter(word_freq, Fetch.stopwords()), "all")
         wordcloud_path = os.path.join("results", "all.pdf")
         svg_path = os.path.join("results", "all.svg")
         word_path = os.path.join("results", "words.txt")
@@ -348,6 +348,7 @@ class Fetch:
             else:
                 word_rgb = svg.to_dict()
             species = filename.replace("_", " ")
+            print(word_freq_path)
             with open(word_freq_path, encoding="utf-8") as f:
                 for line in f:
                     fileds = line.split("\t")
@@ -386,6 +387,7 @@ if __name__ == "__main__":
     # for filename in filenames:
     #     run_fetch(filename)
     # Fetch.run_all(filenames)
+    run_fetch("Oreochromis_niloticus")
 
     # run_fetch("Danio_rerio")
     # Fetch.run_all(filenames)
