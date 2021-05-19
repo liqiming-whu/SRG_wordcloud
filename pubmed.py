@@ -54,6 +54,22 @@ class Search_Pubmed:
                 writer.writerow([pmid, title, author, source, url])
 
     @staticmethod
+    def get_journal(id):
+        handle = Entrez.efetch(db="pubmed", id=[id], rettype="medline", retmode="text")
+        records = Medline.parse(handle)
+        records = list(records)
+
+        return records[0].get("TA", "?")
+
+    @staticmethod
+    def get_source(id):
+        handle = Entrez.efetch(db="pubmed", id=[id], rettype="medline", retmode="text")
+        records = Medline.parse(handle)
+        records = list(records)
+
+        return records[0].get("SO", "?")
+
+    @staticmethod
     def detail_to_excel(idlist, name):
         handle = Entrez.efetch(db="pubmed", id=idlist, rettype="medline", retmode="text")
         records = Medline.parse(handle)
