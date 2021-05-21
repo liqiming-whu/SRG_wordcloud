@@ -23,6 +23,7 @@ for _, dirname in Fetch.parse_search_items():
     for art in os.listdir(art_dir):
         pmid = art.replace(".txt", "")
         if os.path.exists(os.path.join(out_path, pmid+".txt")):
+            print(f"{pmid} has been saved.")
             count += 1
             continue
         source = Search_Pubmed.get_source(pmid)
@@ -38,7 +39,7 @@ for _, dirname in Fetch.parse_search_items():
             continue
         page_text = page.get_text()
         if not os.path.exists(os.path.join(out_path, pmid+".txt")):
-            with open(os.path.join(out_path, pmid+".txt"), "w") as o:
+            with open(os.path.join(out_path, pmid+".txt"), "w", encoding="utf-8") as o:
                 o.write(page_text)
                 count += 1
 
