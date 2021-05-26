@@ -78,16 +78,21 @@ class TestFetch(Fetch):
 
     def test_word_source(self, name):
         freq = json.load(open(os.path.join("test_srg", name))).keys()
-        article_dir = self.path(type="articles")
+
+        items = list(Fetch.parse_search_items())
+        filenames = [name[1] for name in items]
 
         pubmed_list = []
         for word in freq:
-            for art in os.listdir(article_dir):
-                pmid = art.rstrip(".txt")
-                art_p = os.path.join(article_dir, art)
-                if word in open(art_p, encoding="utf-8").read():
-                    pubmed_list.append(pmid)
-
+            for filename in filenames:
+                article_dir = os.path.join("results", filename, "articles")
+                if not os.path.exists(article_dir):
+                    continue
+                for art in os.listdir(article_dir):
+                    pmid = art.rstrip(".txt")
+                    art_p = os.path.join(article_dir, art)
+                    if word in open(art_p, encoding="utf-8").read():
+                        pubmed_list.append(pmid)
         articles_num = len(set(pubmed_list))
 
         print(f"Collected {articles_num} articles")

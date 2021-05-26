@@ -1,0 +1,11 @@
+Start log: Wed May 26 09:08:41 2021
+word_freq length:  14988
+Collected 1145 articles
+=================================
+Start log: Wed May 26 09:09:43 2021
+word_freq length:  14988
+Collected 1145 articles
+=================================
+Start log: Wed May 26 09:11:08 2021
+word_freq length:  14988
+Collected 1150 articles
