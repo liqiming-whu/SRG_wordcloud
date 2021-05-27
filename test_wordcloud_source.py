@@ -1,11 +1,28 @@
 #!/usr/bin/env python3
 import os
 import json
+import pandas as pd
+from pubmed import Search_Pubmed
 from workflow import Fetch
 from collections import Counter
 from nltk.tokenize import word_tokenize
 from nltk.probability import FreqDist
 from text_utils import process_text, GENES, DRUGS
+
+
+def get_idlist():
+    idlist = []
+    excel = pd.ExcelFile(os.path.join("doc", "Table S2.xlsx"))
+    for sheet in excel.sheet_names:
+        if sheet == "amh (194)":
+            df = excel.parse(sheet, header=1)
+        else:
+            df = excel.parse(sheet, header=0)
+        idlist += df['Pubmed_ID'].tolist()
+    
+    assert(len(idlist) == 1611)
+   
+    return idlist
 
 
 def process_freq_dict(freq_dict, filename, num):
@@ -76,30 +93,62 @@ class TestFetch(Fetch):
         with open(word_freq_path, "w", encoding="utf-8") as f:
             json.dump(filtered_word_freq, f)
 
-    def test_word_source(self, name):
+    def test_word_source(self, name, savejson):
         freq = json.load(open(os.path.join("test_srg", name))).keys()
-
-        items = list(Fetch.parse_search_items())
-        filenames = [name[1] for name in items]
-
         pubmed_list = []
         for word in freq:
-            for filename in filenames:
-                article_dir = os.path.join("results", filename, "articles")
-                if not os.path.exists(article_dir):
-                    continue
-                for art in os.listdir(article_dir):
-                    pmid = art.rstrip(".txt")
-                    art_p = os.path.join(article_dir, art)
-                    if word in open(art_p, encoding="utf-8").read():
+            for filename in os.listdir(os.path.join("SRGMing_results", "results")):
+                dirname = filename.rstrip(".csv")
+                filterdf = pd.read_csv(os.path.join("SRGMing_results", "results", filename), header=0)
+                filterlist = filterdf["Pubmed_ID"].to_list()
+                for pmid in filterlist:
+                    art_path = os.path.join("SRGMing_results", "download", dirname, str(pmid)+".txt")
+                    if word in open(art_path).read():
                         pubmed_list.append(pmid)
+                        print(art_path)
+
         articles_num = len(set(pubmed_list))
+        with open(savejson, "w", encoding="utf-8") as s:
+            json.dump(list(set(pubmed_list)), s)
 
         print(f"Collected {articles_num} articles")
 
+def calculate_in_wordcloud(num):
+    whitelist_dir = os.path.join("test_srg", "test_zebrafish")
+    male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, f"male_{num}.txt"))]
+    female = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, f"female_{num}.txt"))]
+
+    items = list(Fetch.parse_search_items())
+    filenames = [name[1] for name in items]
+    pubmed_list = []
+    for word in male + female:
+        for filename in filenames:
+            article_dir = os.path.join("results", filename, "articles")
+            if not os.path.exists(article_dir):
+                continue
+            for art in os.listdir(article_dir):
+                pmid = art.rstrip(".txt")
+                art_p = os.path.join(article_dir, art)
+                if word in open(art_p, encoding="utf-8").read():
+                    pubmed_list.append(pmid)
+    articles_num = len(set(pubmed_list))
+    print(f"Addon words collected {articles_num} articles in wordcloud_source")
+    Search_Pubmed.handlelist(list(set(pubmed_list)), f"test_srg/zebrafish_addon_{i}.txt")
+
 
 if __name__ == "__main__":
+    logfile = open("test_wordcloud_source.log.txt", "w", encoding="utf-8")
     for i in ('50', '100', '150', '200'):
+        if os.path.exists(os.path.join("test_srg", f"zebrafish_source_{i}.json")):
+            continue
         test = TestFetch("Danio_rerio")
         test.test_save_word_freq(f"zebrafish_{i}.json", i)
-        test.test_word_source(f"zebrafish_{i}.json")
+        test.test_word_source(f"zebrafish_{i}.json", f"test_srg/zebrafish_source_{i}.json")
+
+    remain = set(get_idlist())
+
+    for i in ('50', '100', '150', '200'):
+        articles = set(json.load(open(f"test_srg/zebrafish_source_{i}.json")))
+        logfile.write(f"zebrafish_{i}: Collected {len(articles)} articles\n")
+        calculate_in_wordcloud(i)
+    logfile.close()

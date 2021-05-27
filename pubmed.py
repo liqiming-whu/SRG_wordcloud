@@ -38,6 +38,13 @@ class Search_Pubmed:
         return record["IdList"]
 
     @staticmethod
+    def handlelist(idlist, filename):
+        handle = Entrez.efetch(db="pubmed", id=idlist, rettype="medline", retmode="text")
+        print(handle)
+        with open(handle, "w", encoding="utf-8") as f:
+            f.write(handle)
+
+    @staticmethod
     def detail(idlist, name):
         handle = Entrez.efetch(db="pubmed", id=idlist, rettype="medline", retmode="text")
         records = Medline.parse(handle)
