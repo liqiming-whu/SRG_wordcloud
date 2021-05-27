@@ -40,9 +40,8 @@ class Search_Pubmed:
     @staticmethod
     def handlelist(idlist, filename):
         handle = Entrez.efetch(db="pubmed", id=idlist, rettype="medline", retmode="text")
-        print(handle)
-        with open(handle, "w", encoding="utf-8") as f:
-            f.write(handle)
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write("".join(list(handle)))
 
     @staticmethod
     def detail(idlist, name):

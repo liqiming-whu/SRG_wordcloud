@@ -133,7 +133,14 @@ def calculate_in_wordcloud(num):
                     pubmed_list.append(pmid)
     articles_num = len(set(pubmed_list))
     print(f"Addon words collected {articles_num} articles in wordcloud_source")
-    Search_Pubmed.handlelist(list(set(pubmed_list)), f"test_srg/zebrafish_addon_{i}.txt")
+    # Search_Pubmed.handlelist(list(set(pubmed_list)), f"test_srg/zebrafish_addon_{i}.txt")
+    url_list = []
+    for pmid in list(set(pubmed_list)):
+        url = "https://pubmed.ncbi.nlm.nih.gov/" + pmid
+        hplink = '=HYPERLINK("{}")'.format(url)
+        url_list.append(hplink)
+    df = pd.DataFrame({"PubMedID": url_list})
+    df.to_excel(f"test_srg/zebrafish_addon_{i}.xlsx")
 
 
 if __name__ == "__main__":
