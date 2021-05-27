@@ -118,8 +118,9 @@ def calculate_in_wordcloud(num):
     male = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, f"male_{num}.txt"))]
     female = [i.rstrip("\n").strip('"') for i in open(os.path.join(whitelist_dir, f"female_{num}.txt"))]
 
-    items = list(Fetch.parse_search_items())
-    filenames = [name[1] for name in items]
+    # items = list(Fetch.parse_search_items())
+    # filenames = [name[1] for name in items]
+    filenames = ["Danio_rerio"]
     pubmed_list = []
     for word in male + female:
         for filename in filenames:
